@@ -1,5 +1,0 @@
-version: 2
-
-models:
-- name: dwd_orders_ss_monthly
-  description: dwd_orders_ss_monthly

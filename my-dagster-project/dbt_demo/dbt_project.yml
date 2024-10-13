@@ -31,19 +31,12 @@ clean-targets: # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   dbt_demo:
-    +pre-hook:
-      - |
-        drop table if exists default.ods_orders;
-      - | 
-        create table if not exists default.ods_orders as
-        select * from ( values
-            (1, 'customer-1', '2023-01-01', 'open'),
-            (1, 'customer-1', '2023-01-02', 'closed'),
-            (2, 'customer-1', '2023-01-03', 'open'),
-            (3, 'customer-2', '2023-01-01', 'open')
-        ) as t (id, user_id, order_date, status);
-    +materialized: incremental
-    ods:
+    engine:
       +materialized: incremental
-    dwd:
+      +schema: egn
+    mart:
       +materialized: incremental
+      +schema: mart
+    raw:
+      +materialized: incremental
+      +schema: raw

@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw_source
+    schema: raw
+    tables:
+      - name: posts
+        description: chứa tất cả các post raw lấy từ api
+      - name: comments
+        description: chứa tất cả các comments raw lấy từ api

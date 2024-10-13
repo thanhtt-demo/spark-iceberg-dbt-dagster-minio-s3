@@ -1,0 +1,10 @@
+version: 2
+
+models:
+- name: mrt_posts
+  description: Đây là bảng mart mrt_posts
+  columns:
+    - name : userId
+      description: id của user
+      tests:
+        - not_null

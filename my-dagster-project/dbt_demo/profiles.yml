@@ -1,0 +1,14 @@
+dbt_demo:
+  outputs:
+    dev:
+      type: spark
+      method: thrift
+      host: localhost
+      port: 10000
+      schema: demox
+      database: demox
+      user: dbt
+      connect_retries: 5
+      connect_timeout: 5
+      retry_all: true
+  target: dev
