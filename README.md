@@ -51,7 +51,29 @@ Disable auth by removing `hive-site.xml` mount of `sts` services.
 ## Setting DDL
 
 # To dbt debug successs
+%%sql
 CREATE DATABASE IF NOT EXISTS default;
+
+%%sql
+CREATE DATABASE IF NOT EXISTS egn;
+
+%%sql
+CREATE DATABASE mart__s2;
+
+%%sql
+CREATE DATABASE IF NOT EXISTS raw;
+
+%%sql
+CREATE DATABASE IF NOT EXISTS mart;
+
+CREATE TABLE raw.t24_account__s2(
+  userId bigint,
+  id bigint,
+  title string,
+  body string,
+  partition_date date
+)
+PARTITIONED BY (partition_date)
 
 CREATE TABLE raw.posts
 (
@@ -59,7 +81,7 @@ CREATE TABLE raw.posts
   id bigint,
   title string,
   body string,
-  partition_date string
+  partition_date date
 )
 PARTITIONED BY (partition_date)
 
@@ -70,7 +92,7 @@ CREATE TABLE raw.comments
   name string,
   email string,
   body string,
-  partition_date string
+  partition_date date
 )
 PARTITIONED BY (partition_date);
 
@@ -80,7 +102,7 @@ CREATE TABLE raw.posts (
     id STRING,
     title STRING,
     body STRING,
-    partition_date STRING)
+    partition_date DATE)
 USING iceberg
 PARTITIONED BY (partition_date)
 LOCATION 's3://warehouse/raw/posts'
@@ -89,3 +111,10 @@ TBLPROPERTIES (
 'format' = 'iceberg/parquet',
 'format-version' = '2',
 'write.parquet.compression-codec' = 'zstd')
+
+#
+%%sql
+show table extended in default like '*'
+
+# update external tables
+curl -X POST localhost:3000/report_asset_materialization/t24_account__s2?partition=2024-10-26

@@ -23,6 +23,10 @@ clean-targets: # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
+vars:
+  partition_date: '2024-10-01'
+  max_date: '2024-10-14'
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -34,9 +38,11 @@ models:
     engine:
       +materialized: incremental
       +schema: egn
+      +file_format: iceberg
     mart:
       +materialized: incremental
       +schema: mart
-    raw:
-      +materialized: incremental
-      +schema: raw
+      +file_format: iceberg
+snapshots:
+  +target_schema: "mart__s2"
+  +file_format: iceberg

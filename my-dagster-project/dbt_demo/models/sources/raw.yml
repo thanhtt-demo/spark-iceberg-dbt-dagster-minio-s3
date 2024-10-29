@@ -1,10 +1,12 @@
 version: 2
 
 sources:
-  - name: raw_source
+  - name: raw
     schema: raw
     tables:
       - name: posts
         description: chứa tất cả các post raw lấy từ api
       - name: comments
         description: chứa tất cả các comments raw lấy từ api
+      - name: t24_account__s2
+        description: chứa thông tin t24_account__s2 từ eod lake

@@ -5,10 +5,11 @@ dbt_demo:
       method: thrift
       host: localhost
       port: 10000
-      schema: demox
-      database: demox
+      schema: raw
+      database: raw
       user: dbt
       connect_retries: 5
-      connect_timeout: 5
-      retry_all: true
+      connect_timeout: 10
+      retry_all: True
+      use_ssl: False
   target: dev

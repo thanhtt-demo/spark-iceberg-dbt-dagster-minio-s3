@@ -1,0 +1,31 @@
+unit_tests:
+
+  - name: test_max_length_true
+    description: >
+      Scenario: test max_length luon tra ve gia tri chinh xac
+
+    # Model
+    model: egn_comments_by_posts
+
+    # Inputs
+    given:
+      - input: ref('mrt_posts')
+        rows:
+          - {
+              id: 76,
+              partition_date: '2024-10-01'
+            }
+      - input: ref('mrt_comments')
+        rows:
+          - { postId: 76,
+              body: '12345',
+              partition_date: '2024-10-01'
+            }
+
+    # Output
+    expect:
+      rows:
+        - {
+            postid: 76,
+            max_length: 5
+          }

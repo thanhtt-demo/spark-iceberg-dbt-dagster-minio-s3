@@ -1,7 +1,7 @@
 {{
     config(
         pre_hook=[
-            "set hive.exec.dynamic.partition.mode=nonstrict;"
+            'set hive.exec.dynamic.partition.mode=nonstrict;'
         ],
         materialized='incremental',
         partition_by='partition_date',
@@ -10,21 +10,16 @@
     )
 }}
 
-with tbl_a
-AS(
-    SELECT * 
-    FROM {{ source('raw', 't24_account__s2') }}
-)
-
-SELECT userId,
+SELECT postId,
          id,
-         title,
+         name,
+         email,
          body,
          partition_date
-FROM {{ source('raw', 'posts') }}
+FROM {{ source('raw', 'comments') }}
 WHERE partition_date BETWEEN '{{ var('partition_date') }}' AND '{{ var('partition_date') }}'
-    AND body IS NOT NULL
-    and title IS NOT NULL
+    AND name IS NOT NULL
+    and email IS NOT NULL
 
 -- {# {% if is_incremental() %}
 

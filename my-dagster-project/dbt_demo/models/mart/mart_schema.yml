@@ -8,3 +8,18 @@ models:
       description: id của user
       tests:
         - not_null
+    - name : id
+      description: id của posts
+      tests:
+        - not_null
+- name: mrt_comments
+  description: Đây là bảng mart mrt_comments
+  columns:
+    - name : postId
+      description: id post
+      tests:
+        - not_null
+    - name : id
+      description: id của comment
+      tests:
+        - not_null

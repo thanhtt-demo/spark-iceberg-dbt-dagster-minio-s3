@@ -4,7 +4,13 @@ models:
 - name: egn_comments_by_posts
   description: Đây là bảng thống kê số lượng comments theo post
   columns:
-    - name : userId
-      description: id của user
+    - name : postId
+      description: id của posts
       tests:
         - not_null
+    - name: number_of_comments
+      description: số lượng comments của post theo ngày
+      tests:
+        - not_null
+- name: egn_using_account
+  description: Đây là bảng test

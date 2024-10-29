@@ -1,23 +1,36 @@
 from dagster import asset, get_dagster_logger, AssetExecutionContext
-from dagster import AssetSpec, AutomationCondition, asset
+# from dagster import AssetSpec, AutomationCondition, asset
 import requests
 import pyiceberg
 import pyarrow as pa
 from pyiceberg.catalog import load_catalog
 from ...partitions import daily_partition
+from datetime import datetime
+import pyiceberg.expressions as E
 
 # from pyiceberg.partitioning import PartitionSpec, PartitionField
 # from pyiceberg.transforms import DayTransform
 
 
-def create_pyarrow_table(data, partition_date_str):
+def create_pyarrow_table(data, partition_date):
+    """
+    Create a PyArrow Table from a list of dictionaries and a partition date.
+
+    Args:
+        data (list of dict): A list of dictionaries where each dictionary represents a row of data.
+            Each dictionary should contain the keys "userId", "id", "title", and "body".
+        partition_date (str): A string representing the partition date to be added as a column.
+
+    Returns:
+        pyarrow.Table: A PyArrow Table constructed from the provided data and partition date.
+    """
     # Define columns and corresponding data
     columns = {
         "userId": [item["userId"] for item in data],
         "id": [item["id"] for item in data],
         "title": [item["title"] for item in data],
         "body": [item["body"] for item in data],
-        "partition_date": [partition_date_str] * len(data),  # Add partition_date column
+        "partition_date": [partition_date] * len(data),  # Add partition_date column
     }
 
     # Create PyArrow Table from dictionary
@@ -36,6 +49,7 @@ def create_pyarrow_table(data, partition_date_str):
 def posts(context: AssetExecutionContext):
     logger = get_dagster_logger()
     partition_date_str = context.partition_key
+    partition_date = datetime.strptime(partition_date_str, "%Y-%m-%d").date()
 
     # Step 1: Call API to get data
     api_url = "https://jsonplaceholder.typicode.com/posts"
@@ -49,7 +63,7 @@ def posts(context: AssetExecutionContext):
         raise
 
     # Step 2: Convert data to DataFrame
-    arrow_table = create_pyarrow_table(data, partition_date_str)
+    arrow_table = create_pyarrow_table(data, partition_date)
 
     catalog_warehouse = "s3://warehouse/raw/"
 
@@ -86,7 +100,7 @@ def posts(context: AssetExecutionContext):
 
         # logger.info(f"Table {table_name} created successfully.")
     logger.info(f"Inserting data into {table_name}")
-    table.overwrite(arrow_table)
-
+    overwrite_filter = E.EqualTo("partition_date", partition_date.strftime("%Y-%m-%d"))
+    table.overwrite(arrow_table, overwrite_filter)
 
 # AssetSpec("my_cron_asset", automation_condition=AutomationCondition.on_cron("@daily"))
