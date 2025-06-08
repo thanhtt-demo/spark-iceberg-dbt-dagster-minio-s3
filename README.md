@@ -50,6 +50,10 @@ Disable auth by removing `hive-site.xml` mount of `sts` services.
 
 ## Setting DDL
 
+## open notebook and run the following commands to create the necessary databases and tables.
+Notebook on port 8888 (PyIceberg - Getting Started.ipynb)
+
+```sql
 # To dbt debug successs
 %%sql
 CREATE DATABASE IF NOT EXISTS default;

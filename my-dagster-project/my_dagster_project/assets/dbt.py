@@ -25,16 +25,26 @@ class CustomizedDagsterDbtTranslator(DagsterDbtTranslator):
 @dbt_assets(
     manifest=dbt_project.manifest_path,
     dagster_dbt_translator=CustomizedDagsterDbtTranslator(),
-    exclude=INCREMENTAL_SELECTOR, # Add this here
+    exclude=INCREMENTAL_SELECTOR,  # Add this here
     partitions_def=daily_partition,  # partition those models using daily_partition
 )
 def dbt_demo(context: AssetExecutionContext, dbt: DbtCliResource):
     time_window = context.partition_time_window
     dbt_vars = {
-        "partition_date": time_window.start.strftime('%Y-%m-%d'),
-        "max_date": (time_window.end - timedelta(days=1)).strftime('%Y-%m-%d')
+        "partition_date": time_window.start.strftime("%Y-%m-%d"),
+        "max_date": (time_window.end - timedelta(days=1)).strftime("%Y-%m-%d"),
     }
-    yield from dbt.cli(["build", "--exclude-resource-types","unit_test", "--vars", json.dumps(dbt_vars)], context=context).stream()
+    yield from dbt.cli(
+        [
+            "build",
+            "--exclude-resource-types",
+            "unit_test",
+            "--vars",
+            json.dumps(dbt_vars),
+        ],
+        context=context,
+    ).stream()
+
 
 # Đối với dbt moel using incremental strategy, pass var as partition date to dbt model
 @dbt_assets(
@@ -46,7 +56,16 @@ def dbt_demo(context: AssetExecutionContext, dbt: DbtCliResource):
 def incremental_dbt_models(context: AssetExecutionContext, dbt: DbtCliResource):
     time_window = context.partition_time_window
     dbt_vars = {
-        "partition_date": time_window.start.strftime('%Y-%m-%d'),
-        "max_date": (time_window.end - timedelta(days=1)).strftime('%Y-%m-%d')
+        "partition_date": time_window.start.strftime("%Y-%m-%d"),
+        "max_date": (time_window.end - timedelta(days=1)).strftime("%Y-%m-%d"),
     }
-    yield from dbt.cli(["build", "--exclude-resource-types", "unit_test", "--vars", json.dumps(dbt_vars)], context=context).stream()
+    yield from dbt.cli(
+        [
+            "build",
+            "--exclude-resource-types",
+            "unit_test",
+            "--vars",
+            json.dumps(dbt_vars),
+        ],
+        context=context,
+    ).stream()

@@ -17,10 +17,10 @@ AS(
 )
 
 SELECT userId,
-         id,
-         title,
-         body,
-         partition_date
+        id,
+        title,
+        body,
+        partition_date
 FROM {{ source('raw', 'posts') }}
 WHERE partition_date BETWEEN '{{ var('partition_date') }}' AND '{{ var('partition_date') }}'
     AND body IS NOT NULL

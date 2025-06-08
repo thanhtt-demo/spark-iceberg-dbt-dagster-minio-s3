@@ -1,15 +1,13 @@
 from dagster import asset, get_dagster_logger, AssetExecutionContext
-# from dagster import AssetSpec, AutomationCondition, asset
 import requests
 import pyiceberg
 import pyarrow as pa
 from pyiceberg.catalog import load_catalog
 from ...partitions import daily_partition
 from datetime import datetime
-import pyiceberg.expressions as E
-
 # from pyiceberg.partitioning import PartitionSpec, PartitionField
 # from pyiceberg.transforms import DayTransform
+import pyiceberg.expressions as E
 
 
 def create_pyarrow_table(data, partition_date):
@@ -18,17 +16,18 @@ def create_pyarrow_table(data, partition_date):
 
     Args:
         data (list of dict): A list of dictionaries where each dictionary represents a row of data.
-            Each dictionary should contain the keys "userId", "id", "title", and "body".
-        partition_date (str): A string representing the partition date to be added as a column.
+            Each dictionary should have the keys: 'postId', 'id', 'name', 'email', and 'body'.
+        partition_date (str): The partition date to be added as a column to the table.
 
     Returns:
-        pyarrow.Table: A PyArrow Table constructed from the provided data and partition date.
+        pyarrow.Table: A PyArrow Table containing the data and the partition date column.
     """
     # Define columns and corresponding data
     columns = {
-        "userId": [item["userId"] for item in data],
+        "postId": [item["postId"] for item in data],
         "id": [item["id"] for item in data],
-        "title": [item["title"] for item in data],
+        "name": [item["name"] for item in data],
+        "email": [item["email"] for item in data],
         "body": [item["body"] for item in data],
         "partition_date": [partition_date] * len(data),  # Add partition_date column
     }
@@ -40,24 +39,23 @@ def create_pyarrow_table(data, partition_date):
 
 @asset(
     partitions_def=daily_partition,
-    group_name="abc_api",
-    metadata={"dataset_name": "raw", "dagster/relation_identifier": "raw.posts"},
+    group_name="dump_api",
+    metadata={"dataset_name": "raw", "dagster/relation_identifier": "raw.comments"},
     compute_kind="python",
-    owners=["team:thanhtt@vpbank.com.vn"],
-    # automation_condition=AutomationCondition.cron_tick_passed("@daily")
+    owners=["team:thanhtt@vpbank.com.vn"]
 )
-def posts(context: AssetExecutionContext):
+def comments(context: AssetExecutionContext):
     logger = get_dagster_logger()
     partition_date_str = context.partition_key
     partition_date = datetime.strptime(partition_date_str, "%Y-%m-%d").date()
 
     # Step 1: Call API to get data
-    api_url = "https://jsonplaceholder.typicode.com/posts"
+    api_url = "https://jsonplaceholder.typicode.com/comments"
     try:
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
-        logger.info(f"Retrieved {len(data)} posts from API.")
+        logger.info(f"Retrieved {len(data)} comments from API.")
     except requests.exceptions.RequestException as e:
         logger.error(f"Error calling API: {e}")
         raise
@@ -80,7 +78,7 @@ def posts(context: AssetExecutionContext):
     }
 
     catalog = load_catalog("default", **catalog_properties)
-    table_name = "raw.posts"
+    table_name = "raw.comments"
 
     # Check if the table already exists
     try:
@@ -93,7 +91,7 @@ def posts(context: AssetExecutionContext):
         # # Create a new table
         # table = catalog.create_table(
         #     identifier=table_name,
-        #     location=f"{catalog_warehouse}posts",
+        #     location=f"{catalog_warehouse}comments",
         #     schema=arrow_table.schema,
         #     properties={"format-version": "2", "write.format.default": "parquet"},
         # )
@@ -102,5 +100,3 @@ def posts(context: AssetExecutionContext):
     logger.info(f"Inserting data into {table_name}")
     overwrite_filter = E.EqualTo("partition_date", partition_date.strftime("%Y-%m-%d"))
     table.overwrite(arrow_table, overwrite_filter)
-
-# AssetSpec("my_cron_asset", automation_condition=AutomationCondition.on_cron("@daily"))

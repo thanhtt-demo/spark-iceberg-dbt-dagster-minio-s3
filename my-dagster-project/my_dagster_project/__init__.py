@@ -1,6 +1,6 @@
 from dagster import Definitions, load_assets_from_modules, AssetSpec
 from .assets import dbt
-from .assets.ABC_api import post, comments, eod_tables
+from .assets.dump_api import post, comments, eod_tables
 from .jobs.t24_parsing.t24_account import t24_topic_parsing_job
 # from .jobs.t24_parsing import t24_account
 # from my_dagster_project import assets

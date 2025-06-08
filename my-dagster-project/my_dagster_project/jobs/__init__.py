@@ -4,7 +4,7 @@ from ..partitions import daily_partition
 
 # from ..assets.dbt import dbt_analytics
 
-source_posts_api = AssetSelection.groups("abc_api")
+source_posts_api = AssetSelection.groups("dump_api")
 # adhoc_request = AssetSelection.assets("adhoc_request")
 
 engine_x_jobs = AssetSelection.all() - AssetSelection.assets("mrt_posts__s2") - AssetSelection.assets(["egn", "egn_using_account"])

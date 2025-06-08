@@ -14,11 +14,11 @@
 ) }}
 
 SELECT userId,
-         id,
-         title,
-         body,
-         partition_date,
-         CURRENT_TIMESTAMP AS updated_at
+        id,
+        title,
+        body,
+        partition_date,
+        CURRENT_TIMESTAMP AS updated_at
 FROM {{ source('raw', 'posts') }}
 WHERE partition_date = '{{ var('partition_date') }}'
     AND body IS NOT NULL
